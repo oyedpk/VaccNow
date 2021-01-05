@@ -1,0 +1,239 @@
+openapi: 3.0.0
+info:
+  version: '0.0.1'
+  title: 'VaccNow'
+  description: 'Vaccination'
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://server.swaggerhub.com/vaccination/0.0.1
+  - url: http://dev.foo.com/v1
+    description: Dev Server
+
+  - url: http://prod.foo.com/v1
+    description: Prod Server
+
+paths:
+  /branch/{branchId}/schedule:
+    post:
+      summary: Vaccine
+      operationId: scheduleAppointment
+      tags:
+        - schedule
+        - branchId
+      parameters:
+        - name: branchId
+          in: path
+          required: true
+          description: The branch id to schedule appointment
+          schema:
+            type: string
+      requestBody:
+        description: scheduleRequest payload
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScheduleRequest'
+        required: true
+      responses:
+        201:
+          description: '*Created*
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleResponse'
+        400:
+          description: 'Bad Request'
+        default:
+          description: 'General Error'
+
+  /branch:
+    get:
+      summary: Retrieve all branch
+      operationId: getAllBranches
+      tags:
+        - Retrieve
+      responses:
+        200:
+          description: 'Retrieve'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branches'
+        400:
+          description: 'Bad Request'
+        default:
+          description: 'General Error'
+  /branch/{branchId}/vaccine:
+    get:
+      summary: Retrieve all vaccines for specific branch
+      operationId: getAllVaccinesForBranch
+      tags:
+        - Retrieve
+      parameters:
+        - name: branchId
+          in: path
+          required: true
+          description: Retrieve all vaccines for specific branch
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Retrieve'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vaccines'
+        400:
+          description: 'Bad Request'
+        default:
+          description: 'General Error'
+  /branch/{branchId}/timeslot/{timeslot}:
+    get:
+      summary: Retrieve availabilty for a specific branch
+      operationId: getTimeslotForBranch
+      tags:
+        - Retrieve
+      parameters:
+        - name: branchId
+          in: path
+          required: true
+          description: branch id
+          schema:
+            type: string
+        - name: timeslot
+          in: path
+          required: true
+          description: timeslot
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Retrieve'
+          content:
+            application/json:
+              schema:
+                type: string
+        400:
+          description: 'Bad Request'
+        default:
+          description: 'General Error'
+  /branch/{branchId}/timeslot:
+    get:
+      summary: Retrieve all timeslot for a specific branch
+      operationId: getAllTimeslotForBranch
+      tags:
+        - Retrieve
+      parameters:
+        - name: branchId
+          in: path
+          required: true
+          description: branch id
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Retrieve'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Timeslots'
+        400:
+          description: 'Bad Request'
+        default:
+          description: 'General Error'
+components:
+  schemas:
+    PaymentInfo:
+      type: object
+      required:
+        - paymentMethod
+        - amount
+      properties:
+        PaymentMethod:
+          $ref: '#/components/schemas/PaymentMethod'
+        amount:
+          type: string
+          minLength: 1
+          maxLength: 36
+    CustomerInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    ScheduleRequest:
+      type: object
+      required:
+        - paymentInfo
+        - customerInfo
+        - branchId
+        - vaccineId
+      properties:
+        paymentInfo:
+          $ref: "#/components/schemas/PaymentInfo"
+        customerInfo:
+          $ref: "#/components/schemas/CustomerInfo"
+        branchId:
+          type: string
+        vaccineId:
+          type: string
+    ScheduleResponse:
+      description: |
+        Response containing schedule
+      type: object
+      properties:
+        branchId:
+          type: string
+        vaccineId:
+          type: string
+        status:
+          type: string
+    PaymentMethod:
+      description: |
+        payment method sub types for a payment option
+      type: string
+      enum:
+        - CREDIT
+        - CASH
+        - FAWRY
+    Branches:
+      type: array
+      items:
+        $ref: '#/components/schemas/Branch'
+    Branch:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        capacity:
+          type: string
+    Vaccines:
+      type: array
+      items:
+        $ref: '#/components/schemas/Vaccine'
+    Vaccine:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        price:
+          type: string
+    Timeslots:
+      type: array
+      items:
+        $ref: '#/components/schemas/Timeslot'
+    Timeslot:
+      type: object
+      properties:
+        id:
+          type: string
+        branch_id:
+          type: string
+        slot:
+          type: string
